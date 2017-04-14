@@ -8,6 +8,9 @@
 \setlength{\textwidth}{6.5in} % leaves 1 in for right margin
 \setlength{\textheight}{9in} % 9 inches reserved for the text
 \usepackage{enumerate}
+\usepackage{hyperref}
+
+\pagenumbering{gobble}
 
 \DeclareMathOperator{\sgn}{sgn}
 \DeclareMathOperator{\Ext}{Ext}
@@ -26,7 +29,19 @@
 \maketitle
 
 \section*{Problem Description}
+The problem of classifying music by genre is a particularly difficult and interesting one because of the wealth of criteria by which a piece of music may be categorized as belonging to a certain genre, and because of the numerous, constantly evolving, genres and sub-genres which separate pieces of music, often by very subtle stylistic differences. In this project, we aim to develop a classification algorithm which can determine the genre of a piece of music based purely on its sonic features such as timbre, pitch, and rhythm, and to evaluate its performance dependent upon the number of genres over which a piece of music is being classified.
+\par We intend to use the Million Song Dataset to train and evaluate our algorithm. The Million Song Dataset is a collection of audio features and metadata for over one million pieces of music encompassing many genres and time periods which has been made freely available by The Echo Nest. This dataset's massive size and inclusion of a diverse set of audio features for each song, separated into multiple segments, will obviate the need for us to acquire a large library of music and manually extract audio features from each song.
+\par In designing our classification algorithm, we intend to make use of Convolutional Neural Networks in order to capture the effects of audio features in both the time and frequency scales. We will attempt to investigate what combination of input features and layer structure of the Neural Network achieves the best performance for classifying an increasing number of more closely related music genres. Analyzing the performance of such a classification algorithm will also allow us to gain insight into how closely related different musical genres and sub-genres are based strictly on their audio features.
+
+
 \section*{Reading List}
+\begin{itemize}
+    \item \href{http://ieeexplore.ieee.org/document/5664796/}{http://ieeexplore.ieee.org/document/5664796/}
+    \item \href{http://ismir2011.ismir.net/papers/OS6-1.pdf}{http://ismir2011.ismir.net/papers/OS6-1.pdf}
+    \item \href{http://ufldl.stanford.edu/tutorial/supervised/ConvolutionalNeuralNetwork/}{http://ufldl.stanford.edu/tutorial/supervised/ConvolutionalNeuralNetwork/}
+    \item \href{https://arxiv.org/abs/1607.02444}{https://arxiv.org/abs/1607.02444}
+    \item \href{http://www.iaeng.org/publication/IMECS2010/IMECS2010\_pp546-550.pdf}{http://www.iaeng.org/publication/IMECS2010/IMECS2010\_pp546-550.pdf}
+\end{itemize}
 
 
 

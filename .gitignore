@@ -92,3 +92,7 @@ ENV/
 *.aux
 *.log
 *.synctex.gz
+*.out
+
+# Other
+*.swp
