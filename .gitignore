@@ -96,3 +96,7 @@ ENV/
 
 # Other
 *.swp
+data/
+*.hdf5
+*.db
+*.csv
