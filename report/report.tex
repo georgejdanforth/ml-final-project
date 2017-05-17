@@ -37,11 +37,12 @@ George Danforth \\
 \maketitle
 
 \begin{abstract}
-TODO
+We implement a convolutional neural network (CNN) and train it to classify between 10 different genres of music, attaining a result of 36\% validation accuracy. We use training and validation data sets derived from the freely available Million Song Dataset.
 \end{abstract}
 
 \section{Introduction}
-The task of automatically classifying pieces of music by genre has various applications; from helping people discover music they like more quickly and easily, to investigating and understanding the differences between musical genres in an empirical fashion. In spite of the potential applications, this task is also a particularly difficult one\ldots TODO
+The task of automatically classifying pieces of music by genre has various applications; from helping people discover music they like more quickly and easily, to investigating and understanding the differences between musical genres in an empirical fashion. In spite of the potential applications, this task is also a particularly difficult one, due to the numerous, constantly evolving genres and sub-genres which separate pieces of music, often by subtle stylistic differences.
+In this study, we intend to implement a convolutional neural network (CNN) capable of classifying pieces of music by genre, based purely on their audio characteristics.
 
 
 \section{Related Work}
@@ -53,8 +54,6 @@ The Million Song Dataset (MSD) is a collection of metadata and audio features ov
 \par The metadata features included in the MSD consist of basic information such as the artist of the track, the year it was released, the album or compilation it was released on, etc. Additionally, each track contains a list of tags relating to the artist, which have been compiled by the MusicBrainz community.
 \par Each track in the MSD also contains numerous audio features, both at the track level and corresponding to individual segments within a track, which have been extracted by The Echo Nest. The track level features include tempo, time signature, and key, as well higher level features created by The Echo Nest, such as ``danceability'', and ``energy''. For more fine-grained information, each track in the MSD was broken up into a number of variable time-length segments, each roughly corresponding to a note/bar onset or some other relevant musical event. The features included at the segment level include length-12 vectors of timbre features, which are described as MFCC-like features, length-12 vectors of pitch information, which are normalized pitch histograms, as well as the maximum loudness within each segment.
 
-
-\subsection{Other Models}
 
 
 \section{Method}
@@ -77,13 +76,20 @@ Because of the behavior of each filter in a convolutional neural network layer, 
 
 
 \section{Results}
+After implementing the convolutional layer, we found that adding it to our neural network incurred extremely long computation times which made experimentation with the overall layer structure of the CNN prohibitively difficult. The final network we trained consisted of a convolutional layer, a single hidden ReLU layer, and a fully-connected layer implementing softmax loss. As mentioned, training this network was very slow, taking roughly 30 seconds per iteration with a batch size of 100 training points. After training the network for 500 iterations to classify between 10 different genres of music, we achieved a validation accuracy of 36\%. This result, although not remotely ideal does indicate that the model did not completely fail to learn any structure in the data, which would have resulted in roughly a 10\% validation accuracy. Constructing a confustion matrix for the results (Figure 1), lends further insight into what the model was and was not able to distinguish. Inspecting the confusion matrix, it is evident that almost every genre included had a high propensity to be misclassified as both rock and pop. Meanwhile, folk, reggae, and classical were the least often misclassified. Intuitively, this result seems to make sense given that pop and rock both span many moods, tempos, time periods, etc. However, analysis and comparison of the spectral features of these genres remains a question for further inquiry.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{confusion}
+\caption{Confusion matrix of optimal CNN model. True values are on the vertical axis, and predicted labels are on the horizontal axis.}
 \end{figure}
 \section{Conclusion}
-\section{Discussion}
-\section{Further Work}
+\subsection{Discussion}
+In this study, we constructed a convolutional neural network with the intent of training it to classify pieces of music provided by the MSD based purely based on their audio features. Using a two-layer CNN and training it on time-separated timbre, pitch, and loudness features we acheived 36\% accuracy on our validation set. Although this result is not as strong as we had hoped, performing the study still provided interesting insights into sonic similarities between different genres of music.
+\par Carrying out this study made clear several of the limitations of our methods. First and foremost, we were perhaps somewhat naive not to anticipate the extraordinary computation times incurred by processing training points with 3000 features with a convolutional layer using only a single processor core. This was a major setback in our attempt to glean more meaningful information about the sonic characteristics of distinct musical genres, and to experiment with different network structures in order to create a truly performant model. Another limitation of the method that is worth mentioning is the fact that, given the size of the data, it is entirely possible that much of our training data was either not classified accurately or with sufficient precision. Since our chosen dataset had to be labeled and reduced by a somewhat manual process, its accuracy cannot be guaranteed.
+
+\subsection{Further Work}
+This study leaves open many avenues for further study. One of the most glaring issues with our method was the prohibitive computation time incurred by our implementation of a convolutional layer. As a followup to this study, it would be valuable to investigate optimization methods for training a CNN, perhaps via CPU parallelization or through the use of GPUs. Further optimization of our model would allow us to explore different network configurations and improve our results, which, in turn would provide us with further insight into the sonic differences between distinct musical genres. Another area for further study would be to investigate how the performance of the model is impacted by including more and more genres and sub-genres in the dataset. As music continues to evolve, there are ever more characteristics between which a model such as ours must distinguish.
+
 \begin{thebibliography}{10}
 \bibitem{survey}
 Zhouyu Fu, Goujun Lu, Kai Ming Ting, Dengsheng Zhang.
