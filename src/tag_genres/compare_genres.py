@@ -3,7 +3,7 @@ import itertools as it
 
 
 def main():
-    with open("genres_10.json") as f:
+    with open("genres_10_mil.json") as f:
         genres = json.load(f)
         for g1, g2 in it.combinations(genres.keys(), 2):
             intersect = set(genres[g1]).intersection(genres[g2])

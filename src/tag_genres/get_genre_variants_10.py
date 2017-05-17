@@ -58,7 +58,7 @@ def main():
 
             GENRE_VARIANTS[genre] = list(GENRE_VARIANTS[genre])
 
-    with open("genres_10.json", "w") as f:
+    with open("genres_10_mil.json", "w") as f:
         json.dump(GENRE_VARIANTS, f, indent=4)
 
 if __name__ == "__main__":
