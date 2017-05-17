@@ -247,17 +247,15 @@ def runTrainVal(X, Y, model, Xval, Yval, trainopt, crit):
                 .format(iteration, loss, trainError, valError)
             )
 
-
+#Define model structure
 def build_model(inputLength, inputDepth, outputSize):
     model = Sequential()
     model.add(Convolutional(inputLength,inputDepth, 21,30))
     model.add(ReLU())
-    model.add(Convolutional(100,30, 51,5))
-    model.add(ReLU())
-    model.add(FullyConnected(250,outputSize))
-    model.add(ReLU())
+    model.add(FullyConnected(3000,outputSize))
     return model
 
+#Insert file path
 def load_data():
     MSD_DIR = os.path.join(
         os.path.expanduser("~"),
@@ -320,8 +318,8 @@ def main():
 
     trainopt = {
         "eta": 1e-4,
-        "maxiter": 20000,
-        "display_iter": 500,
+        "maxiter": 500,
+        "display_iter": 5,
         "batch_size": 100,
         "etadrop": 0.5,
         "eta_frac": 0.25
