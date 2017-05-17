@@ -1,0 +1,64 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{nips14submit_e,times}
+\usepackage{hyperref}
+\usepackage{url}
+%\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
+
+
+\title{Music Genre Classification Using Convolutional Neural Networks}
+
+
+\author{
+George Danforth \\
+\texttt{gdanfor1@jhu.edu}
+\And\-Edward Li \\
+\texttt{eli8@jhu.edu}
+}
+
+\date{May 17, 2017}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\nipsfinalcopy% Uncomment for camera-ready version
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\section{Introduction}
+
+\section{Implementing a Convolutional Neural Network}
+Instead of treating each data sample as a set of 3000 individual features as we do under a regular (fully-connected) neural network, we can treat it as 120 slices of a time dimension with 25 unique acoustic features each. Since certain musical patterns of songs may last longer than others, we may wish to study the patterns these 25 features exhibit over different regions of time. This makes our dataset a good candidate for study under a convolutional neural network.
+
+Unlike a regular neural network where neurons are arranged in single-dimensional layers, in a convolutional neural network, neurons are arranged in two-dimensional layers: the ``length" dimension corresponds to a region of time within the song and the "depth" dimension corresponds to a ``filter." Each filter is just a set of weights and a bias which are applied to a region of time smaller than the total output region passed by the previous layer. Each layer of the neural network may have multiple filters, all of which are of the same length and are unique to that layer.
+
+In some sense, we can treat each individual filter as a fully-connected layer: a filter's forward for a single region of time acted on by that filter is the same as the forward pass of a full-connected layer. Hence, for a filter $i=\{1,2,\ldots,n^{(l)}\}$ in layer $l$ with weight $W^{(l)}_i$, bias $b^{(l)}_i$, and input $Z^{(l)}_{ij}$, we have
+\begin{equation}
+    z^{(l+1)}_{ij} = W^{(l)}_i Z^{(l)}_{ij} + b^{(l)}_i
+\end{equation}
+However, each filter in layer $l$ acts over the entire output passed by layer $l-1$. In our implementation, we use a stride of 1 since we only have 120 slices of time. Hence, if layer $l$ has a filter size of $a^{(l)}$ and layer $l-1$ produces an output length of $b^{(l-1)}$, then each filter input $Z^{(l)}_{ij}$ contains $a^{(l)}$ consecutive elements of the output from layer $l-1$ and $j=\{1,2,\ldots,b^{(l-1)}-a^{(l)}+1\}$. Therefore, layer $l+1$ contains $b^{(l-1)}-a^{(l)}+1$ elements in the length dimension and $n^{(l)}$ elements in the depth dimension.
+
+Because of the behavior of each filter in a convolutional neural network layer, backpropagation here is handled a little differently from backpropagation in a fully-connected neural network layer. In our loss gradients for layer $l$, instead of having a contribution of loss to each of the neurons in layer $l+1$, we have a contribution of loss to each filter output, which corresponds to each depth element of layer $l+1$. Additionally, the contribution of loss to a depth element of layer $l+1$ from an input element of layer $l$ is summed over up to $n^{(l)}$ different derivatives with respect to the weight vectors contained in the set of weights for the corresponding filter of layer $l$. Of course, input elements near the ends of the time dimension have fewer derivatives with respect to the weight vectors since they contribute to fewer elements in the output region.
+
+\begin{thebibliography}{10}
+\bibitem{msd}
+Thierry Bertin-Mahieux, Danile P.W. Ellis, Brian Whitman, and Paul Lamere.
+\textit{The Million Song Dataset}.
+Proceedings of the 12th International Society for Music Information Retrieval Conference (ISMIR 2011), 2011.
+\end{thebibliography}
+
+\end{document}
