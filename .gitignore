@@ -100,3 +100,4 @@ data/
 *.hdf5
 *.db
 *.csv
+*.pem
