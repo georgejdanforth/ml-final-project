@@ -2,6 +2,8 @@ import os
 import h5py
 import numpy as np
 
+from scipy.misc import logsumexp
+
 
 class Module(object):
     def __init__(self):
@@ -124,19 +126,13 @@ class SoftMaxLoss(object):
 
     def forward(self, _input, _label):
         _input -= np.amax(_input, axis=1)[:, np.newaxis]
-        self._output = -np.sum(
-                _label[:, np.newaxis] * (_input - np.log(
-                np.sum(np.exp(_input), axis=1)
-            ).reshape(1, -1).T)
-        )
-        print(self._output)
+        z = _label * (_input - logsumexp(_input, axis=1).reshape(1, -1).T)
+        self._output = -np.sum(z) #/ np.size(z)
         return self._output
 
     def backward(self, _input, _label):
         _input -= np.amax(_input, axis=1)[:, np.newaxis]
-        self._gradInput = np.exp(_input) \
-                / np.sum(np.exp(_input), axis=1).reshape(1, -1).T \
-                - _label[:, np.newaxis]
+        self._gradInput = np.exp(_input)/np.sum(np.exp(_input), axis=1).reshape(1, -1).T - _label
         return self._gradInput
 
 
@@ -205,21 +201,54 @@ def build_model(input_size, hidden_size, output_size):
 def load_data():
     MSD_DIR = os.path.join(
         os.path.expanduser("~"),
+        "Dropbox",
+        "machine_learning",
         "ml-final-project",
         "data",
-        "msd_data_10.hdf5"
+        "msd_data_10_proc.hdf5"
+        #"msd_data_10.hdf5"
     )
 
     with h5py.File(MSD_DIR, "r") as f:
+        """
         stop_val = np.zeros(f["/data"][0].shape)
         i = 0
         while not (f["/data"][i] == stop_val).all():
             i += 1
         j = int(0.9 * i)
         Xtrain = f["/data"][:j, :]
-        Ytrain = f["/labels"][:j]
         Xval = f["/data"][j:i, :]
-        Yval = f["/labels"][j:i]
+        Ytrain = np.zeros((j, 10))
+        Yval = np.zeros((i-j, 10))
+        Ytrain[np.arange(j), f["/labels"][:j]] += 1
+        Yval[np.arange(i-j), f["/labels"][j:i]] += 1
+        """
+        X = f["/data"]
+        Y = f["/labels"]
+        N = X.shape[0]
+        i = int(0.9 * N)
+        Xtrain = X[:i, :]
+        Ytrain = Y[:i, :]
+        Xval = X[i:N, :]
+        Yval = Y[i:N, :]
+
+    return Xtrain, Ytrain, Xval, Yval
+
+def load_mnist():
+    MNIST_DIR = os.path.join(
+        os.path.expanduser("~"),
+        "Dropbox",
+        "machine_learning",
+        "ml-final-project",
+        "data",
+        "CLEAN_MNIST_SUBSETS.h5"
+    )
+
+    with h5py.File(MNIST_DIR, "r") as f:
+        Xtrain = f["large_train/data"][:].astype(np.float64)
+        Ytrain = f["large_train/labels"][:].astype(np.int32)
+        Xval = f["val/data"][:].astype(np.float64)
+        Yval = f["val/labels"][:].astype(np.int32)
 
     return Xtrain, Ytrain, Xval, Yval
 
@@ -227,9 +256,10 @@ def load_data():
 def main():
 
     Xtrain, Ytrain, Xval, Yval = load_data()
+    #Xtrain, Ytrain, Xval, Yval = load_mnist()
 
     trainopt = {
-        "eta": 0.01,
+        "eta": 1e-4,
         "maxiter": 20000,
         "display_iter": 500,
         "batch_size": 100,
@@ -237,7 +267,7 @@ def main():
         "eta_frac": 0.25
     }
 
-    num_features = 3000
+    num_features = Xtrain.shape[1]
 
     lambdas = np.array([0, 0.001, 0.01, 0.1])
     hidden_sizes = np.array([10])
@@ -247,9 +277,8 @@ def main():
             trainopt["lambda"] = lambda_
             model = build_model(num_features, hidden_size_, 10)
             crit = SoftMaxLoss()
-            trained_model, valErr, trainErr = runTrainVal(
-                Xtrain, Ytrain, model, Xval, Yval, trainopt, crit
-            )
+            runTrainVal(Xtrain, Ytrain, model, Xval, Yval, trainopt, crit)
+            print("=" * 80)
 
 if __name__ == "__main__":
     main()

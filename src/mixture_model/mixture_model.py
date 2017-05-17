@@ -8,7 +8,14 @@ from sklearn.mixture import GaussianMixture
 
 
 HOME_DIR = os.path.expanduser("~")
-DATA_DIR = os.path.join(HOME_DIR, "ml-final-project", "data", "msd_data_10.hdf5")
+DATA_DIR = os.path.join(
+    HOME_DIR,
+    "Dropbox",
+    "machine_learning",
+    "ml-final-project",
+    "data",
+    "msd_data_10_proc.hdf5"
+)
 
 
 class MixtureModel(object):
@@ -106,23 +113,26 @@ def load_data(classes=10):
     X_val = {i: [] for i in range(classes)}
 
     with h5py.File(DATA_DIR, "r") as f:
+        """
         stop_val = np.zeros(f["/data"][0].shape)
         num_features = stop_val.shape[0]
         i = 0
         while not (f["/data"][i] == stop_val).all():
-            """
             if random.random() < 0.1:
                 X_val[f["/labels"][i]].append(f["/data"][i])
             else:
                 X_train[f["/labels"][i]].append(f["/data"][i])
-            """
             i += 1
+        """
+        N = f["/data"].shape[0]
+        i = int(0.9 * N)
+        X_train = f["/data"][:i, :]
+        y_train = f["/labels"][:i, :]
+        X_val = f["/data"][i:, :]
+        y_val = f["/labels"][i:, :]
 
-        j = int(0.9 * i)
-        X_train = f["/data"][:j, :]
-        y_train = f["/labels"][:j]
-        X_val = f["/data"][j:i, :]
-        y_val = f["/labels"][j:i]
+        y_train = np.where(y_train == 1)[1]
+        y_val = np.where(y_val == 1)[1]
 
     """
     for c in range(classes):
@@ -130,7 +140,7 @@ def load_data(classes=10):
         X_val[c] = np.array(X_val[c])
     """
 
-    return X_train, y_train, X_val, y_val, num_features
+    return X_train, y_train, X_val, y_val, N
 
 
 def main():
@@ -141,7 +151,7 @@ def main():
     gmm = GaussianMixture(n_components=num_classes)
     gmm.means_ = np.array([X_train[y_train == c].mean(axis=0) for c in range(num_classes)])
     gmm.fit(X_train)
-    y_train_pred = classifier.predict(X_train)
+    y_train_pred = gmm.predict(X_train)
     train_accuracy = np.mean(y_train_pred.ravel() == y_train.ravel()) * 100
     print(train_accuracy)
 
